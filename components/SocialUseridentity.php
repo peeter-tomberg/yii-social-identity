@@ -86,7 +86,6 @@ class SocialUserIdentity extends CUserIdentity
 						return false;
 					}
 
-					$this->setState("name", $userSocialLogin->user->display_name);
 					$this->_id = $userSocialLogin->user_id;
 					$this->errorCode = self::ERROR_NONE;
 
