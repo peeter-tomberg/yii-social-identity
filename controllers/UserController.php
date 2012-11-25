@@ -42,7 +42,7 @@ class UserController extends Controller {
 					$successCallback();
 				}
 				else {
-					$this->render('login', array("error" => true));
+					$this->render('login', array("error" => "Signup error omg"));
 				}
 			}
 			else {

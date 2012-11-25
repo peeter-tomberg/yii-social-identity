@@ -18,9 +18,12 @@ class UserModule extends CWebModule
 
 		// import the module-level models and components
 		$this->setImport(array(
+
 			'user.models.*',
 			'user.controllers.*',
 			'user.components.*',
+			'user.services.*',
+			'user.exceptions.*',
 			'user.vendors.facebook.src.*',
 
 		));

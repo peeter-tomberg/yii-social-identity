@@ -12,19 +12,19 @@ class SocialUserIdentity extends CUserIdentity
 	 * The id of the logged in user
 	 * @var mixed
 	 */
-	private $_id;
+	public $_id;
 
 	/**
 	 * The name of the service to use (facebook etc)
 	 * @var string
 	 */
-	private $service;
+	public $service;
 
 	/**
 	 * Determines if this is the user initating the login process or if this is the actual response
 	 * @var boolean
 	 */
-	private $is_callback = false;
+	public $is_callback = false;
 
 	/**
 	 * Construct a SocialUseridentity
@@ -51,48 +51,54 @@ class SocialUserIdentity extends CUserIdentity
 
 		switch($this->service) {
 			case 'facebook':
-				$facebook = new Facebook(array(
-					'appId'  => $networks[$this->service]["appId"],
-					'secret' => $networks[$this->service]["secret"],
+
+				$facebookAuthenticationService = new FacebookAuthenticationService($this, array(
+
+					'appId'			=> $networks[$this->service]["appId"],
+					'secret'		=> $networks[$this->service]["secret"],
+
+					'redirect_url'	=> Yii::app()->createAbsoluteUrl("user/user/login", array(
+						"service" => $this->service,
+						"is_callback" => true
+					))
 				));
-				$user = $facebook->getUser();
-				if(!$user) {
 
-					if($this->is_callback) {
-						return false;
-					}
+				try {
+					$facebookAuthenticationService->authorize();
+				}
+				catch(AuthorizationException $e) {
+					$this->errorCode = UserIdentity::ERROR_USERNAME_INVALID;
+					return false;
+				}
 
-					Yii::app()->request->redirect(
-						$facebook->getLoginUrl(array("redirect_uri" => Yii::app()->createAbsoluteUrl("user/user/login", array(
+				return $facebookAuthenticationService->authenticate();
+				break;
+
+			case 'twitter':
+
+				$twitterAuthenticationService = new TwitterAuthenticationService($this, array(
+
+						'key'			=> $networks[$this->service]["key"],
+						'secret'		=> $networks[$this->service]["secret"],
+
+						'redirect_url'	=> Yii::app()->createAbsoluteUrl("user/user/login", array(
 							"service" => $this->service,
 							"is_callback" => true
-							)
-						)))
-					);
+						))
+				));
+
+				try {
+					$twitterAuthenticationService->authorize();
 				}
-				else {
-
-					$userSocialLogin = UserSocialLogins::model()->findByAttributes(array("service_name" => $this->service, "service_id" => $user));
-					if(!$userSocialLogin) {
-
-						$user_profile = $facebook->api('/me');
-
-						$this->setState("access_token", $facebook->getAccessToken());
-						$this->setState("service_id", $user);
-						$this->setState("display_name", $user_profile["name"]);
-
-						$this->errorCode = self::ERROR_UNKNOWN_IDENTITY;
-
-						return false;
-					}
-
-					$this->_id = $userSocialLogin->user_id;
-					$this->errorCode = self::ERROR_NONE;
-
-					return true;
+				catch(AuthorizationException $e) {
+					$this->errorCode = UserIdentity::ERROR_USERNAME_INVALID;
+					return false;
 				}
+
+				return $twitterAuthenticationService->authenticate();
 
 				break;
+
 			default:
 				throw new Exception("User trying to authenticate with an unknown service $this->service");
 		}

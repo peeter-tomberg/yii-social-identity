@@ -1,3 +1,6 @@
 [submodule "vendors/facebook"]
 	path = vendors/facebook
 	url = git://github.com/facebook/facebook-php-sdk.git
+[submodule "vendors/ZendOAuth"]
+	path = vendors/ZendOAuth
+	url = git://github.com/zendframework/ZendOAuth.git
