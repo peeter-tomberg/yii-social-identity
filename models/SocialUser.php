@@ -10,7 +10,7 @@
  * The followings are the available model relations:
  * @property UserSocialLogins[] $userSocialLogins
  */
-class User extends CActiveRecord
+class SocialUser extends CActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.

@@ -9,7 +9,7 @@ class UserModule extends CWebModule
 	 */
 	public $networks = array();
 
-	public $userModel = 'User';
+	public $userModel = 'SocialUser';
 
 	public function init()
 	{
